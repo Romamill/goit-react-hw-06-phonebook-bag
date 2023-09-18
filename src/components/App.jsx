@@ -1,61 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import ContactForm from './ContactForm/ContactForm';
 import ContactList from './ContactList/ContactList';
 import Filter from './Filter/Filter';
 import './style-app.css';
 
 function App() {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
-  const addContact = (name, number) => {
-    if (
-      contacts.some(
-        contact => contact.name.toLowerCase() === name.toLowerCase()
-      )
-    ) {
-      alert(`Contact "${name}" is already in contacts.`);
-      return;
-    }
-    const newContact = { id: Date.now().toString(), name, number };
-    setContacts([...contacts, newContact]);
-  };
-
-  const deleteContact = id => {
-    const updatedContacts = contacts.filter(contact => contact.id !== id);
-    setContacts(updatedContacts);
-  };
-
-  const handleFilterChange = e => {
-    setFilter(e.target.value);
-  };
-
-  const getFilteredContacts = () => {
+  const filteredContacts = useSelector(state => {
+    const { contacts, filter } = state.contact;
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
-  };
-
-  const filteredContacts = getFilteredContacts();
+  });
 
   return (
     <div className="app-container">
-      <div className="content-conteiner">
+      <div className="content-container">
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={addContact} />
-        <ContactList contacts={filteredContacts} onDelete={deleteContact} />
-        <Filter filter={filter} onChange={handleFilterChange} />
+        <ContactForm />
+        <ContactList contacts={filteredContacts} />
+        <Filter />
       </div>
     </div>
   );
